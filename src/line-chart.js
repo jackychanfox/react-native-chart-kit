@@ -211,8 +211,6 @@ class LineChart extends AbstractChart {
   }
 
   render() {
-    const paddingTop = 16
-    const paddingRight = 64
     const {
       width,
       height,
@@ -224,6 +222,8 @@ class LineChart extends AbstractChart {
       withHorizontalLabels = true,
       withVerticalLabels = true,
       style = {},
+      paddingTop = 16,
+      paddingRight = 16,
       decorator,
       onDataPointClick
     } = this.props

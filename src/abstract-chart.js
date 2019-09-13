@@ -211,7 +211,7 @@ class AbstractChart extends Component {
           <Stop
             offset="0"
             stopColor={this.props.chartConfig.color()}
-            stopOpacity="0.1"
+            stopOpacity="1"
           />
           <Stop
             offset="1"
