@@ -147,7 +147,7 @@ class LineChart extends AbstractChart {
     const datas = this.getDatas(data)
     const x = i =>
       Math.floor(
-        paddingRight + (i * (width - paddingRight)) / dataset.data.length
+        paddingRight + (i * (width - paddingRight)) / (dataset.data.length-1)
       )
     const baseHeight = this.calcBaseHeight(datas, height)
     const y = i => {
@@ -195,7 +195,7 @@ class LineChart extends AbstractChart {
       const d =
         this.getBezierLinePoints(dataset, config) +
         ` L${paddingRight +
-          ((width - paddingRight) / dataset.data.length) *
+          ((width - paddingRight) /( dataset.data.length-1)) *
             (dataset.data.length - 1)},${(height / 4) * 3 +
           paddingTop} L${paddingRight},${(height / 4) * 3 + paddingTop} Z`
       output.push(
@@ -211,6 +211,8 @@ class LineChart extends AbstractChart {
   }
 
   render() {
+    const paddingTop = 16
+    const paddingRight = 0
     const {
       width,
       height,
@@ -222,8 +224,6 @@ class LineChart extends AbstractChart {
       withHorizontalLabels = true,
       withVerticalLabels = true,
       style = {},
-      paddingTop = 16,
-      paddingRight = 16,
       decorator,
       onDataPointClick
     } = this.props
@@ -243,7 +243,7 @@ class LineChart extends AbstractChart {
               ...this.props.chartConfig
             })}
             <Rect
-              width="100%"
+              width={width}
               height={height}
               rx={borderRadius}
               ry={borderRadius}

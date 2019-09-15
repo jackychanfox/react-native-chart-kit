@@ -141,7 +141,7 @@ class AbstractChart extends Component {
           y={(height * 3) / 4 + paddingTop + fontSize * 2}
           fontSize={fontSize}
           fill={this.props.chartConfig.color(0.5)}
-          textAnchor="middle"
+          textAnchor="left"
         >
           {label}
         </Text>
@@ -219,6 +219,25 @@ class AbstractChart extends Component {
             stopOpacity="0"
           />
         </LinearGradient>
+        {this.props.data.barData&&this.props.data.barData.map((item, index)=><LinearGradient
+          id={`fillBarGradient${index}`}
+          x1={0}
+          y1={0}
+          x2={0}
+          y2={height}
+        >
+          <Stop
+            offset="0"
+            stopColor={item.color?item.color():this.props.chartConfig.color()}
+            stopOpacity="1"
+          />
+          <Stop
+            offset="1"
+            stopColor={item.color?item.color():this.props.chartConfig.color()}
+            stopOpacity="1"
+          />
+        </LinearGradient>)}
+        
       </Defs>
     )
   }

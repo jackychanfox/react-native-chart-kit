@@ -7,12 +7,14 @@ const Pie = require('paths-js/pie')
 
 class PieChart extends AbstractChart {
   render() {
-    const {style = {}, backgroundColor, absolute = false} = this.props
+    const {style = {}, backgroundColor, absolute = false, ringWidth} = this.props
     const {borderRadius = 0} = style
+    let R = this.props.height / 2.5
+    let r = R - ringWidth;
     const chart = Pie({
       center: this.props.center || [0, 0],
-      r: 0,
-      R: this.props.height / 2.5,
+      r,
+      R,
       data: this.props.data,
       accessor: x => {
         return x[this.props.accessor]
@@ -36,7 +38,7 @@ class PieChart extends AbstractChart {
       return (
         <G key={Math.random()}>
           <Path d={c.sector.path.print()} fill={c.item.color} />
-          <Rect
+          {/* <Rect
             width="16px"
             height="16px"
             fill={c.item.color}
@@ -60,7 +62,7 @@ class PieChart extends AbstractChart {
             }
           >
             {`${value} ${c.item.name}`}
-          </Text>
+          </Text> */}
         </G>
       )
     })
@@ -90,8 +92,8 @@ class PieChart extends AbstractChart {
           />
           <G
             x={
-              this.props.width / 2 / 2 +
-              Number(this.props.paddingLeft ? this.props.paddingLeft : 0)
+              this.props.width / 2
+              
             }
             y={this.props.height / 2}
           >
