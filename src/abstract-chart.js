@@ -141,7 +141,7 @@ class AbstractChart extends Component {
           y={(height * 3) / 4 + paddingTop + fontSize * 2}
           fontSize={fontSize}
           fill={this.props.chartConfig.color(0.5)}
-          textAnchor="left"
+          textAnchor="start"
         >
           {label}
         </Text>
