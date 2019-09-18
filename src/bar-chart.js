@@ -1,26 +1,26 @@
 import React from 'react'
 import { View } from 'react-native'
-import { Svg, Rect, G, Polyline } from 'react-native-svg'
+import { Svg, Rect, G, Polyline, Path } from 'react-native-svg'
 import AbstractChart from './abstract-chart'
 
 const barWidth = 32
 
 class BarChart extends AbstractChart {
-  constructor(props){
+  constructor(props) {
     super(props)
     let mergedData = []
-    this.props.data.lineData&&this.props.data.lineData.map(x=>mergedData.push(...x.data))
-    this.props.data.barData&&this.props.data.barData.map(x=>mergedData.push(...x.data))
+    this.props.data.lineData && this.props.data.lineData.map(x => mergedData.push(...x.data))
+    this.props.data.barData && this.props.data.barData.map(x => mergedData.push(...x.data))
     this.mergedData = mergedData
   }
   renderBars = config => {
     const { datasets, width, height, paddingTop, paddingRight } = config
-    if ( datasets == null || datasets.length == 0 ) return;
+    if (datasets == null || datasets.length == 0) return;
     const baseHeight = this.calcBaseHeight(this.mergedData, height)
-    
-    const interval = (((width - paddingRight) / datasets[0].data.length)-10)/datasets.length
-    return datasets.map((item, index)=>{
-      const {data} = item
+
+    const interval = (((width - paddingRight) / datasets[0].data.length) - 10) / datasets.length
+    return datasets.map((item, index) => {
+      const { data } = item
       return data.map((x, i) => {
         const barHeight = this.calcHeight(x, this.mergedData, height)
         return (
@@ -28,20 +28,20 @@ class BarChart extends AbstractChart {
             key={Math.random()}
             x={
               paddingRight +
-              (i * (width - paddingRight)) / data.length + interval * index+5
+              (i * (width - paddingRight)) / data.length + interval * index + 5
             }
             y={
               ((barHeight > 0 ? baseHeight - barHeight : baseHeight) / 4) * 3 +
               paddingTop
             }
-            width={interval/2}
+            width={interval / 2}
             height={(Math.abs(barHeight) / 4) * 3}
             fill={`url(#fillBarGradient${index})`}
           />
         )
       })
     })
-    
+
   }
 
   renderBarTops = config => {
@@ -77,17 +77,66 @@ class BarChart extends AbstractChart {
   getDatas = data =>
     data.reduce((acc, item) => (item.data ? [...acc, ...item.data] : acc), [])
 
+  getBezierLinePoints = (dataset, config) => {
+    const { width, height, paddingRight, paddingTop, data } = config
+    if (dataset.data.length === 0) {
+      return 'M0,0'
+    }
+
+    const x = i =>
+      Math.floor(
+        paddingRight + (i * (width - paddingRight)) / (dataset.data.length - 1)
+      )
+    const baseHeight = this.calcBaseHeight(this.mergedData, height)
+    const y = i => {
+      const yHeight = this.calcHeight(dataset.data[i], this.mergedData, height)
+      return Math.floor((baseHeight - yHeight) / 4 * 3 + paddingTop)
+    }
+
+    return [`M${x(0)},${y(0)}`]
+      .concat(
+        dataset.data.slice(0, -1).map((_, i) => {
+          const x_mid = (x(i) + x(i + 1)) / 2
+          const y_mid = (y(i) + y(i + 1)) / 2
+          const cp_x1 = (x_mid + x(i)) / 2
+          const cp_x2 = (x_mid + x(i + 1)) / 2
+          return (
+            `Q ${cp_x1}, ${y(i)}, ${x_mid}, ${y_mid}` +
+            ` Q ${cp_x2}, ${y(i + 1)}, ${x(i + 1)}, ${y(i + 1)}`
+          )
+        })
+      )
+      .join(' ')
+  }
+
+  renderBezierLine = config => {
+    const output = []
+    config.data.map((dataset, index) => {
+      const result = this.getBezierLinePoints(dataset, config)
+      output.push(
+        <Path
+          key={index}
+          d={result}
+          fill="none"
+          stroke={this.getColor(dataset, 1)}
+          strokeWidth={this.getStrokeWidth(dataset)}
+        />
+      )
+    })
+    return output
+  }
+
   renderLine = config => {
 
     const { width, height, paddingRight, paddingTop, data } = config
     const output = []
-    if (data==null||data.length==0) return
+    if (data == null || data.length == 0) return
     const baseHeight = this.calcBaseHeight(this.mergedData, height)
-    const interval = (((width-paddingRight)/data[0].data.length)-10)/data.length
+    const interval = (((width - paddingRight) / data[0].data.length) - 10) / data.length
     data.forEach((dataset, index) => {
       const points = dataset.data.map(
         (d, i) => {
-          const x = (i * (width - paddingRight)) / dataset.data.length + paddingRight+interval*index+interval/4+5
+          const x = (i * (width - paddingRight)) / dataset.data.length + paddingRight + interval * index + interval / 4 + 5
           const y = (baseHeight - this.calcHeight(d, this.mergedData, height)) / 4 * 3 + paddingTop
           return `${x},${y}`
         }
@@ -161,7 +210,7 @@ class BarChart extends AbstractChart {
               ? this.renderVerticalLabels({
                 ...config,
                 labels: data.labels,
-                paddingRight:paddingRight,
+                paddingRight: paddingRight,
                 paddingTop,
                 horizontalOffset: 10
               })
@@ -176,7 +225,7 @@ class BarChart extends AbstractChart {
             })}
           </G>
           <G>
-            {this.renderLine({
+            {this.renderBezierLine({
               ...config,
               paddingRight,
               paddingTop,
