@@ -225,7 +225,8 @@ class LineChart extends AbstractChart {
       withVerticalLabels = true,
       style = {},
       decorator,
-      onDataPointClick
+      onDataPointClick,
+      back
     } = this.props
     const {labels = []} = data
     const {borderRadius = 0} = style
@@ -242,13 +243,13 @@ class LineChart extends AbstractChart {
               ...config,
               ...this.props.chartConfig
             })}
-            <Rect
+            {back&&<Rect
               width={width}
               height={height}
               rx={borderRadius}
               ry={borderRadius}
               fill="url(#backgroundGradient)"
-            />
+            />}
             <G>
               {withInnerLines
                 ? this.renderHorizontalLines({
